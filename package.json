@@ -1,0 +1,32 @@
+{
+  "name": "lab5",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node APP/src/server.js",
+    "dev": "nodemon APP/src/server.js",
+    "test": "jest --detectOpenHandles --forceExit",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration --detectOpenHandles --forceExit",
+    "test:watch": "jest --watch --forceExit",
+    "test:coverage": "jest --coverage",
+    "docker:db": "docker-compose up -d mongodb",
+    "docker:test": "docker-compose up -d mongodb-test"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "mongoose": "^7.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.0.0",
+    "cors": "^2.8.5",
+    "winston": "^3.8.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "supertest": "^6.0.0",
+    "nodemon": "^2.0.0",
+    "mongodb-memory-server": "^8.0.0"
+  }
+}

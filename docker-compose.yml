@@ -1,0 +1,30 @@
+# docker-compose.yml в корне 5_v2
+version: '3.8'
+
+services:
+  # Основная БД для разработки
+  mongodb:
+    image: mongo:latest
+    container_name: web_lab5
+    ports:
+      - "27017:27017"
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: admin
+    #   MONGO_INITDB_ROOT_PASSWORD: admin123
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+  
+  # Тестовая БД для CI/CD
+  mongodb-test:
+    image: mongo:latest
+    container_name: web_lab5_test
+    ports:
+      - "27018:27017"  # Другой порт для тестов
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: test
+    #   MONGO_INITDB_ROOT_PASSWORD: test123
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:

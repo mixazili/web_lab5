@@ -1,0 +1,102 @@
+{
+    "info": {
+      "name": "JWT Auth Lab4",
+      "_postman_id": "12345678-abcd-efgh-ijkl-9876543210ab",
+      "description": "Коллекция для тестирования всех auth-эндпоинтов",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Register User",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"12345678\"\n}"
+          },
+          "url": {
+            "raw": "http://localhost:4000/api/auth/register",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "4000",
+            "path": ["api", "auth", "register"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Login User",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"12345678\"\n}"
+          },
+          "url": {
+            "raw": "http://localhost:4000/api/auth/login",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "4000",
+            "path": ["api", "auth", "login"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Refresh Token",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" },
+            { "key": "Cookie", "value": "refreshToken={{refreshToken}}" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{}"
+          },
+          "url": {
+            "raw": "http://localhost:4000/api/auth/refresh",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "4000",
+            "path": ["api", "auth", "refresh"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Logout User",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{}"
+          },
+          "url": {
+            "raw": "http://localhost:4000/api/auth/logout",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "4000",
+            "path": ["api", "auth", "logout"]
+          }
+        },
+        "response": []
+      }
+    ],
+    "variable": [
+      {
+        "key": "refreshToken",
+        "value": ""
+      }
+    ]
+  }
+  

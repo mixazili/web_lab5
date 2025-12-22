@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Live Monitoring</title>
+  </head>
+  <body>
+    <h1>Live Monitoring</h1>
+
+    <h2>Authentication Metrics</h2>
+    <p>Successful logins: <span id="auth_success_total">0</span></p>
+    <p>Failed logins: <span id="auth_failure_total">0</span></p>
+    <p>Refresh operations: <span id="auth_refresh_total">0</span></p>
+    <p>Suspicious events: <span id="auth_suspicious_total">0</span></p>
+    <p>Active refresh tokens: <span id="auth_active_refresh_tokens">0</span></p>
+
+    <p>
+      <small>Last updated: <span id="lastUpdate">--:--:--</span></small>
+    </p>
+
+    <script>
+      async function fetchMetrics() {
+        try {
+          const res = await fetch("http://localhost:4000/metrics");
+          const text = await res.text();
+          const lines = text.split("\n");
+
+          // Парсим каждую метрику
+          lines.forEach((line) => {
+            if (line.startsWith("auth_success_total")) {
+              document.getElementById("auth_success_total").textContent =
+                line.split(" ")[1] || 0;
+            }
+            if (line.startsWith("auth_failure_total")) {
+              document.getElementById("auth_failure_total").textContent =
+                line.split(" ")[1] || 0;
+            }
+            if (line.startsWith("auth_refresh_total")) {
+              document.getElementById("auth_refresh_total").textContent =
+                line.split(" ")[1] || 0;
+            }
+            if (line.startsWith("auth_suspicious_total")) {
+              document.getElementById("auth_suspicious_total").textContent =
+                line.split(" ")[1] || 0;
+            }
+            if (line.startsWith("auth_active_refresh_tokens")) {
+              document.getElementById(
+                "auth_active_refresh_tokens"
+              ).textContent = line.split(" ")[1] || 0;
+            }
+          });
+
+          // Обновляем время
+          const now = new Date();
+          document.getElementById("lastUpdate").textContent =
+            now.toLocaleTimeString();
+        } catch (err) {
+          console.error("Error fetching metrics:", err);
+          document.getElementById("lastUpdate").textContent =
+            "Error: " + err.message;
+        }
+      }
+
+      // Обновляем каждую секунду
+      setInterval(fetchMetrics, 1000);
+
+      // Первый запуск
+      fetchMetrics();
+    </script>
+  </body>
+</html>
