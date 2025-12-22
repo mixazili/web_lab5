@@ -25,7 +25,9 @@ jobs:
           cache: "npm"
   
       - name: 📦 Install ALL dependencies
-        run: npm ci
+        run: 
+          npm ci
+          npm install bcryptjs --no-save
   
       - name: 🧪 Run unit tests
         env:
