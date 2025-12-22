@@ -13,43 +13,27 @@ jobs:
   unit-test:
     name: 🧪 Unit Test
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
-
+  
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
-
-      - name: 💾 Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: 📦 Install dependencies
-        run: npm i
-
+  
+      - name: 📦 Install ALL dependencies
+        run: npm ci
+  
       - name: 🧪 Run unit tests
         env:
           NODE_ENV: test
           MONGO_URI: ${{ env.MONGO_URI_TEST }}
           JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
           JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
-        run: npx jest tests/unit
-      - name: 📊 Upload coverage report
-        uses: codecov/codecov-action@v3
-        if: success()
-        with:
-          file: ./coverage/lcov.info
-          fail_ci_if_error: false
+        run: npm test -- tests/unit  # Или npm run test:unit
 
   # У друга: просто запускает сервер локально для проверки работы
   staging:
