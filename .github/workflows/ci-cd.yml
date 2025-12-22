@@ -3,7 +3,7 @@ name: Full CI/CD Pipeline
 on:
   push:
     branches:
-      - master
+      - main
 
 env:
   NODE_VERSION: "18"
