@@ -35,7 +35,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm i
 
       - name: 🧪 Run unit tests
         env:
@@ -78,7 +78,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm i
 
       - name: 🚀 Start staging server (локально в CI)
         env:
@@ -141,7 +141,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm i
 
       - name: 🧪 Run integration tests
         env:
@@ -186,7 +186,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm i
 
       - name: 🚀 Trigger Production Deployment (Render.com)
         run: |
