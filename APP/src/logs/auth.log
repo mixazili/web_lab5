@@ -515,3 +515,24 @@
 2025-12-23 01:31:54 INFO: register_success
 2025-12-23 01:31:54 INFO: login_success
 2025-12-23 01:31:54 INFO: Private route accessed
+2025-12-23 02:13:53 INFO: MongoDB connected
+2025-12-23 02:13:54 INFO: register_success
+2025-12-23 02:13:54 INFO: register_success
+2025-12-23 02:13:54 INFO: register_failed
+2025-12-23 02:13:54 INFO: register_success
+2025-12-23 02:13:55 INFO: login_success
+2025-12-23 02:13:55 INFO: register_success
+2025-12-23 02:13:55 INFO: login_failed
+2025-12-23 02:13:56 INFO: register_success
+2025-12-23 02:13:56 INFO: login_fail_no_user
+2025-12-23 02:13:56 INFO: register_success
+2025-12-23 02:13:56 INFO: login_success
+2025-12-23 02:13:56 INFO: refresh_success
+2025-12-23 02:13:57 INFO: register_success
+2025-12-23 02:13:57 INFO: login_success
+2025-12-23 02:13:57 INFO: register_success
+2025-12-23 02:13:58 INFO: login_success
+2025-12-23 02:13:58 INFO: logout
+2025-12-23 02:13:58 INFO: register_success
+2025-12-23 02:13:58 INFO: login_success
+2025-12-23 02:13:58 INFO: Private route accessed
