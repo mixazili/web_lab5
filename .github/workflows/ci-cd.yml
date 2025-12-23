@@ -9,13 +9,12 @@ env:
   PORT: 4000
   STAGING_URL: https://web-lab5-staging.onrender.com
   RENDER_STAGING_HOOK: https://api.render.com/deploy/srv-d54vkjq4d50c739kfbcg?key=A3GO59A5CW0
+  PROD_URL: https://web-lab5-prod.onrender.com
+  RENDER_PROD_HOOK: https://api.render.com/deploy/srv-d55108er433s73damr5g?key=yvikoR4By70
 
 jobs:
-  # =========================
-  # CI: Build + Unit + Integration Tests
-  # =========================
   test:
-    name: 🧪 Unit & Integration Tests
+    name: Unit & Integration Tests
     runs-on: ubuntu-latest
     services:
       mongo:
@@ -30,73 +29,65 @@ jobs:
       MONGO_URI_TEST: mongodb://127.0.0.1:27017/web_lab5_test
     steps:
       - uses: actions/checkout@v4
-
-      - name: 🟢 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-
-      - name: 📦 Install dependencies
+      - name: Install dependencies
         run: npm ci
-
-      - name: 🧪 Run unit tests
+      - name: Run unit tests
         run: npm run test:unit
-
-      - name: 🧪 Run integration tests
+      - name: Run integration tests
         run: npm run test:integration
 
-  # =========================
-  # STAGING deploy + E2E
-  # =========================
   staging:
-    name: 🚀 Deploy Staging + E2E
+    name: Deploy Staging + E2E
     runs-on: ubuntu-latest
     needs: test
     steps:
       - uses: actions/checkout@v4
-
-      - name: 🚀 Trigger Render Staging Deployment
+      - name: Trigger Render Staging Deployment
+        run: curl -s -X POST ${{ env.RENDER_STAGING_HOOK }}
+      - name: Wait until staging is up
         run: |
-          echo "Calling Render webhook..."
-          curl -s -X POST ${{ env.RENDER_STAGING_HOOK }}
-
-      - name: ⏳ Wait until staging is up
-        run: |
-          echo "Waiting a few seconds for staging deployment to start..."
-          sleep 20  # пауза перед циклом, чтобы не дергать старый деплой
-          
-          echo "Checking staging health..."
+          sleep 20
           n=0
           until curl -s -f ${{ env.STAGING_URL }}/health > /dev/null 2>&1 || [ $n -ge 30 ]; do
             sleep 10
             n=$((n+1))
             echo "Waiting... ($n)"
           done
-
           if [ $n -ge 30 ]; then
             echo "Staging did not become ready in time"
             exit 1
           fi
-          echo "Staging is up!"
-
-      - name: 🔧 Fix jest permissions
+      - name: Fix jest permissions
         run: chmod +x ./node_modules/.bin/jest
-
-      - name: 🧪 Run E2E tests on staging
+      - name: Run E2E tests on staging
         env:
           BASE_URL: ${{ env.STAGING_URL }}
         run: npm run test:e2e
 
-  # =========================
-  # PRODUCTION (заглушка)
-  # =========================
   production:
-    name: 🚀 Deploy Production
+    name: Deploy Production
     runs-on: ubuntu-latest
     needs: staging
     environment: production
     steps:
       - uses: actions/checkout@v4
-      - name: ⏸️ Placeholder for production deployment
-        run: echo "Production deploy skipped for now"
+      - name: Trigger Render Production Deployment
+        run: curl -s -X POST ${{ env.RENDER_PROD_HOOK }}
+      - name: Wait until production is up
+        run: |
+          sleep 20
+          n=0
+          until curl -s -f ${{ env.PROD_URL }}/health > /dev/null 2>&1 || [ $n -ge 30 ]; do
+            sleep 10
+            n=$((n+1))
+            echo "Waiting... ($n)"
+          done
+          if [ $n -ge 30 ]; then
+            echo "Production did not become ready in time"
+            exit 1
+          fi
