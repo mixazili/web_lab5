@@ -80,7 +80,7 @@ jobs:
         run: curl -s -X POST ${{ env.RENDER_PROD_HOOK }}
       - name: Wait until production is up
         run: |
-          sleep 20
+          sleep 50
           n=0
           until curl -s -f ${{ env.PROD_URL }}/health > /dev/null 2>&1 || [ $n -ge 30 ]; do
             sleep 10
