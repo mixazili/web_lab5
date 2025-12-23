@@ -1,7 +1,8 @@
 const axios = require("axios");
 const https = require("https");
 
-const BASE_URL = process.env.BASE_URL || "https://web-lab5-staging.onrender.com/api";
+const BASE_URL =
+  (process.env.BASE_URL || "https://web-lab5-staging.onrender.com") + "/api";
 const agent = new https.Agent({ keepAlive: false }); // отключаем keep-alive
 
 describe("Auth E2E Tests (Staging)", () => {
