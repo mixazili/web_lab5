@@ -57,16 +57,23 @@ jobs:
           echo "Calling Render webhook..."
           curl -s -X POST ${{ env.RENDER_STAGING_HOOK }}
 
-      - name: ⏳ Wait until staging is up
+        - name: ⏳ Wait until staging is up
         run: |
-          echo "Waiting for staging to be available..."
+          echo "Waiting a few seconds for staging deployment to start..."
+          sleep 20  # пауза перед циклом, чтобы не дергать старый деплой
+          echo "Checking staging health..."
           n=0
-          until curl -f ${{ env.STAGING_URL }}/health || [ $n -eq 30 ]; do
-            sleep 10
-            n=$((n+1))
+          until curl -s -f ${{ env.STAGING_URL }}/health > /dev/null 2>&1 || [ $n -ge 30 ]; do
+            sleep 10              n=$((n+1))
             echo "Waiting... ($n)"
           done
-          echo "Staging is up!"
+        
+          if [ $n -ge 30 ]; then
+            echo "Staging did not become ready in time"
+            exit 1
+          fi
+         echo "Staging is up!"
+        
 
           - name: 🔧 Fix jest permissions
           run: chmod +x ./node_modules/.bin/jest
