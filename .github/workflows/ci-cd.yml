@@ -30,15 +30,19 @@ jobs:
       MONGO_URI_TEST: mongodb://127.0.0.1:27017/web_lab5_test
     steps:
       - uses: actions/checkout@v4
+
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
+
       - name: 📦 Install dependencies
         run: npm ci
+
       - name: 🧪 Run unit tests
         run: npm run test:unit
+
       - name: 🧪 Run integration tests
         run: npm run test:integration
 
@@ -57,32 +61,32 @@ jobs:
           echo "Calling Render webhook..."
           curl -s -X POST ${{ env.RENDER_STAGING_HOOK }}
 
-        - name: ⏳ Wait until staging is up
+      - name: ⏳ Wait until staging is up
         run: |
           echo "Waiting a few seconds for staging deployment to start..."
           sleep 20  # пауза перед циклом, чтобы не дергать старый деплой
+          
           echo "Checking staging health..."
           n=0
           until curl -s -f ${{ env.STAGING_URL }}/health > /dev/null 2>&1 || [ $n -ge 30 ]; do
-            sleep 10              n=$((n+1))
+            sleep 10
+            n=$((n+1))
             echo "Waiting... ($n)"
           done
-        
+
           if [ $n -ge 30 ]; then
             echo "Staging did not become ready in time"
             exit 1
           fi
-         echo "Staging is up!"
-        
+          echo "Staging is up!"
 
-          - name: 🔧 Fix jest permissions
-          run: chmod +x ./node_modules/.bin/jest
-        
-          - name: 🧪 Run E2E tests on staging
-          env:
-            BASE_URL: ${{ env.STAGING_URL }}
-          run: npm run test:e2e
-        
+      - name: 🔧 Fix jest permissions
+        run: chmod +x ./node_modules/.bin/jest
+
+      - name: 🧪 Run E2E tests on staging
+        env:
+          BASE_URL: ${{ env.STAGING_URL }}
+        run: npm run test:e2e
 
   # =========================
   # PRODUCTION (заглушка)
