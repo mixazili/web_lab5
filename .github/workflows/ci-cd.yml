@@ -7,13 +7,15 @@ on:
 env:
   NODE_VERSION: 18
   PORT: 4000
+  STAGING_URL: https://web-lab5-staging.onrender.com
+  RENDER_STAGING_HOOK: https://api.render.com/deploy/srv-d54vkjq4d50c739kfbcg?key=A3GO59A5CW0
 
 jobs:
   # =========================
-  # CI: Build + Tests
+  # CI: Build + Unit + Integration Tests
   # =========================
   test:
-    name: 🧪 Tests
+    name: 🧪 Unit & Integration Tests
     runs-on: ubuntu-latest
     services:
       mongo:
@@ -27,95 +29,59 @@ jobs:
       MONGO_URI: mongodb://127.0.0.1:27017/web_lab5
       MONGO_URI_TEST: mongodb://127.0.0.1:27017/web_lab5_test
     steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-
       - name: 📦 Install dependencies
         run: npm ci
-
-      - name: 🧪 Unit tests
+      - name: 🧪 Run unit tests
         run: npm run test:unit
-
-      - name: 🧪 Integration tests
+      - name: 🧪 Run integration tests
         run: npm run test:integration
 
   # =========================
-  # STAGING
+  # STAGING deploy + E2E
   # =========================
   staging:
-    name: 🚀 Deploy Staging
+    name: 🚀 Deploy Staging + E2E
     runs-on: ubuntu-latest
     needs: test
     steps:
       - uses: actions/checkout@v4
 
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-
-      - name: 📦 Install dependencies
-        run: npm ci
-
-      - name: 🚀 Start staging server
-        env:
-          NODE_ENV: staging
-          DATABASE_URL: ./staging_auth.db
-          JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
-          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+      - name: 🚀 Trigger Render Staging Deployment
         run: |
-          npm start &
-          echo "Waiting for server to be ready..."
+          echo "Calling Render webhook..."
+          curl -s -X POST ${{ env.RENDER_STAGING_HOOK }}
+
+      - name: ⏳ Wait until staging is up
+        run: |
+          echo "Waiting for staging to be available..."
           n=0
-          until curl -f http://localhost:4000/health || [ $n -eq 30 ]; do
-            sleep 2
+          until curl -f ${{ env.STAGING_URL }}/health || [ $n -eq 30 ]; do
+            sleep 10
             n=$((n+1))
             echo "Waiting... ($n)"
           done
-          echo "Staging server is up!"
+          echo "Staging is up!"
+
+      - name: 🧪 Run E2E tests on staging
+        env:
+          BASE_URL: ${{ env.STAGING_URL }}
+        run: npm run test:e2e
 
   # =========================
-  # PRODUCTION
+  # PRODUCTION (заглушка)
   # =========================
   production:
     name: 🚀 Deploy Production
     runs-on: ubuntu-latest
-    needs: [staging]
+    needs: staging
     environment: production
     steps:
       - uses: actions/checkout@v4
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-
-      - name: 📦 Install dependencies
-        run: npm ci
-
-      - name: 🚀 Start production server
-        env:
-          NODE_ENV: production
-          DATABASE_URL: ./prod_auth.db
-          JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
-          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
-        run: |
-          npm start &
-          echo "Waiting for production server..."
-          n=0
-          until curl -f http://localhost:4000/health || [ $n -eq 30 ]; do
-            sleep 2
-            n=$((n+1))
-            echo "Waiting... ($n)"
-          done
-          echo "Production server is up!"
+      - name: ⏸️ Placeholder for production deployment
+        run: echo "Production deploy skipped for now"

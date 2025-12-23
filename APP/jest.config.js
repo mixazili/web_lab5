@@ -1,9 +1,10 @@
 module.exports = {
   testEnvironment: 'node',
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'], // Создадим этот файл
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'], // Если нужно отключить console.log
   testMatch: [
     '<rootDir>/tests/unit/**/*.test.js',
-    '<rootDir>/tests/integration/**/*.test.js'
+    '<rootDir>/tests/integration/**/*.test.js',
+    '<rootDir>/tests/e2e/**/*.test.js' // <-- добавляем e2e
   ],
   collectCoverageFrom: [
     'src/**/*.js',
@@ -12,5 +13,5 @@ module.exports = {
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   verbose: true,
-  testTimeout: 10000
+  testTimeout: 20000 // E2E могут быть дольше, увеличим таймаут
 };
