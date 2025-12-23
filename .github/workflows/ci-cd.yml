@@ -2,7 +2,7 @@ name: JWT App CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 env:
   NODE_VERSION: 18
@@ -68,10 +68,14 @@ jobs:
           done
           echo "Staging is up!"
 
-      - name: 🧪 Run E2E tests on staging
-        env:
-          BASE_URL: ${{ env.STAGING_URL }}
-        run: npm run test:e2e
+          - name: 🔧 Fix jest permissions
+          run: chmod +x ./node_modules/.bin/jest
+        
+          - name: 🧪 Run E2E tests on staging
+          env:
+            BASE_URL: ${{ env.STAGING_URL }}
+          run: npm run test:e2e
+        
 
   # =========================
   # PRODUCTION (заглушка)
