@@ -2,25 +2,18 @@ name: JWT App CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
 
 env:
   NODE_VERSION: 18
   PORT: 4000
-  JWT_ACCESS_SECRET: test_access_secret
-  JWT_REFRESH_SECRET: test_refresh_secret
-  ACCESS_TOKEN_EXP: 1m
-  REFRESH_TOKEN_EXP: 10m
-  COOKIE_SECURE: false
-  RATE_LIMIT_WINDOW_MS: 5000
-  RATE_LIMIT_MAX: 1000
 
 jobs:
   # =========================
-  # CI: Unit Tests
+  # CI: Build + Tests
   # =========================
-  unit-test:
-    name: 🧪 Unit Tests
+  test:
+    name: 🧪 Tests
     runs-on: ubuntu-latest
     services:
       mongo:
@@ -28,20 +21,29 @@ jobs:
         ports:
           - 27017:27017
         options: >-
-          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })'"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })'" 
+          --health-interval=10s --health-timeout=5s --health-retries=5
+    env:
+      MONGO_URI: mongodb://127.0.0.1:27017/web_lab5
+      MONGO_URI_TEST: mongodb://127.0.0.1:27017/web_lab5_test
     steps:
-      - uses: actions/checkout@v4
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
-      - run: npm ci
-      - run: npm run test:unit
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🧪 Unit tests
+        run: npm run test:unit
+
+      - name: 🧪 Integration tests
+        run: npm run test:integration
 
   # =========================
   # STAGING
@@ -49,36 +51,35 @@ jobs:
   staging:
     name: 🚀 Deploy Staging
     runs-on: ubuntu-latest
-    needs: unit-test
+    needs: test
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: 🚀 Start app (staging)
-        run: |
-          docker compose up -d
-          sleep 10
-          curl -f http://localhost:4000/health
-
-  # =========================
-  # Integration Tests
-  # =========================
-  integration-test:
-    name: 🧪 Integration Tests
-    runs-on: ubuntu-latest
-    needs: staging
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
-      - run: npm ci
-      - run: npm run test:integration
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🚀 Start staging server
+        env:
+          NODE_ENV: staging
+          DATABASE_URL: ./staging_auth.db
+          JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+        run: |
+          npm start &
+          echo "Waiting for server to be ready..."
+          n=0
+          until curl -f http://localhost:4000/health || [ $n -eq 30 ]; do
+            sleep 2
+            n=$((n+1))
+            echo "Waiting... ($n)"
+          done
+          echo "Staging server is up!"
 
   # =========================
   # PRODUCTION
@@ -86,16 +87,35 @@ jobs:
   production:
     name: 🚀 Deploy Production
     runs-on: ubuntu-latest
-    needs: integration-test
+    needs: [staging]
     environment: production
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
 
-      - name: 🚀 Deploy production
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🚀 Start production server
+        env:
+          NODE_ENV: production
+          DATABASE_URL: ./prod_auth.db
+          JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
-          docker compose up -d --build
-          sleep 10
-          curl -f http://localhost:4000/health
+          npm start &
+          echo "Waiting for production server..."
+          n=0
+          until curl -f http://localhost:4000/health || [ $n -eq 30 ]; do
+            sleep 2
+            n=$((n+1))
+            echo "Waiting... ($n)"
+          done
+          echo "Production server is up!"
