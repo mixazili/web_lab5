@@ -40,7 +40,7 @@ describe("Auth E2E Tests (Staging)", () => {
       );
     } catch (err) {
       expect(err.response.status).toBe(400);
-      expect(err.response.data).toHaveProperty("message", "User exists");
+      expect(err.response.data).toHaveProperty("message", "User exists111");
     }
   });
 
