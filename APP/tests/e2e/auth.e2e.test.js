@@ -19,6 +19,9 @@ describe("Auth E2E Tests (Staging)", () => {
     username = "e2euser_" + Date.now();
     password = "e2epass123";
 
+    username1 = "e2eus" + Date.now();
+    password1 = "e2epass123";
+
     const res = await axios.post(
       `${BASE_URL}/auth/register`,
       { username, password },
@@ -32,7 +35,7 @@ describe("Auth E2E Tests (Staging)", () => {
     try {
       await axios.post(
         `${BASE_URL}/auth/register`,
-        { username, password },
+        { username1, password1 },
         { httpsAgent: agent }
       );
     } catch (err) {

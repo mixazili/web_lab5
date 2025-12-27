@@ -81,7 +81,7 @@ describe("Auth Controller - Unit Tests", () => {
 
     test("should fail if user exists", async () => {
       // Arrange
-      User.findOne.mockResolvedValue({ username: "test888" });
+      User.findOne.mockResolvedValue({ username: "test" });
 
       const req = {
         body: { username: "test", password: "test123" },
