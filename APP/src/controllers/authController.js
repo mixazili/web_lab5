@@ -34,7 +34,7 @@ async function register(req, res) {
     const exists = await User.findOne({ username });
     if (exists) {
       logger.info("register_failed", { username, reason: "exists" });
-      return res.status(400).json({ message: "User exists" });
+      return res.status(400).json({ message: "User exists66666" });
     }
     const user = new User({ username });
     await user.setPassword(password);
