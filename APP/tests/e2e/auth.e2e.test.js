@@ -35,7 +35,7 @@ describe("Auth E2E Tests (Staging)", () => {
     try {
       await axios.post(
         `${BASE_URL}/auth/register`,
-        { username1, password1 },
+        { username, password },
         { httpsAgent: agent }
       );
     } catch (err) {
